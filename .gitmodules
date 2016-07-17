@@ -1,0 +1,9 @@
+[submodule "server/lib/artistic-videos"]
+	path = server/lib/artistic-videos
+	url = https://github.com/manuelruder/artistic-videos.git
+[submodule "server/lib/neural-style"]
+	path = server/lib/neural-style
+	url = https://github.com/jcjohnson/neural-style.git
+[submodule "server/lib/lsd_slam"]
+	path = server/lib/lsd_slam
+	url = https://github.com/tum-vision/lsd_slam/

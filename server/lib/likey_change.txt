@@ -1,0 +1,30 @@
+        lsd_slam_viewer::keyframeGraphMsg gMsg;
+
+        keyFrameGraph>edgesListsMutex.lock();
+        gMsg.numConstraints = keyFrameGraph->edgesAll.size();
+        gMsg.constraintsData.resize(gMsg.numConstraints * sizeof(GraphConstraint));
+        GraphConstraint* constraintData = (GraphConstraint*)gMsg.constraintsData.data();
+        for(unsigned int i=0;i<keyFrameGraph->edgesAll.size();i++)
+        {
+                constraintData[i].from = keyFrameGraph->edgesAll[i]->firstFrame->id();
+                constraintData[i].to = keyFrameGraph->edgesAll[i]->secondFrame->id();
+                Sophus::Vector7d err = keyFrameGraph->edgesAll[i]->edge->error();
+                constraintData[i].err = sqrt(err.dot(err));
+        }
+        keyFrameGraph->edgesListsMutex.unlock();
+
+        keyFrameGraph->keyframesAllMutex.lock_shared();
+        gMsg.numFrames = keyFrameGraph->keyframesAll.size();
+        gMsg.frameData.resize(gMsg.numFrames * sizeof(GraphFramePose));
+        GraphFramePose* framePoseData = (GraphFramePose*)gMsg.frameData.data();
+        for(unsigned int i=0;i<keyFrameGraph->keyframesAll.size();i++)
+        {
+                framePoseData[i].id = keyFrameGraph->keyframesAll[i]->id();
+                memcpy(framePoseData[i].camToWorld, keyFrameGraph->keyframesAll[i]->getScaledCamToWorld().cast<float>().data(),sizeof(float)*7);
+        }
+        keyFrameGraph->keyframesAllMutex.unlock_shared();
+
+        KeyFrameGraphDisplay graphDisplay = new KeyFrameGraphDisplay();
+        graphDisplay->addMsg(msg);
+        graphDisplay->draw();
+
